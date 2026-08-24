@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+gradio
+openai
+agentscope>=1.0.21,<2.0.0
+mcp>=1.13,<2.0.0
+python-dotenv
+pydantic
+qdrant-client
+rank-bm25
+jieba
+numpy
+tqdm
+pillow
+easyocr

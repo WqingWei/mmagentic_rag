@@ -1,0 +1,10 @@
+data/
+dataclean5/
+docs/
+__pycache__/
+storage/
+storage3/
+storage5/
+test_images/
+
+.env
