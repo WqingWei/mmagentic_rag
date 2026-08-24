@@ -196,6 +196,8 @@ class ChatAgentService:
             "final_query": result.get("final_query", ""),
             "actionability": result.get("actionability", {}),
             "main_plan": result.get("main_plan", {}),
+            "intent_prediction": result.get("intent_prediction", {}),
+            "execution_plan": result.get("execution_plan", {}),
             "tasks": result.get("tasks", []),
             "turn_results": result.get("turn_results", []),
             "task_results": result.get("task_results", []),

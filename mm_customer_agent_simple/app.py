@@ -173,6 +173,7 @@ def health() -> Dict[str, Any]:
         "status": "ok",
         "agent_framework": "AgentScope",
         "llm_model": settings.llm_model,
+        "intent_model_backend": settings.intent_model_backend,
         "enable_customer_qa_retrieval": settings.enable_customer_qa_retrieval,
         "session_count": session_manager.session_count(),
     }

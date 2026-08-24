@@ -32,7 +32,7 @@ def main():
     parser.add_argument(
         "--no-agent-flow-log",
         action="store_true",
-        help="Do not print [主agent]/[子agent] flow logs to the terminal",
+        help="Do not print AgentScope intent/planner/DAG/agent flow logs",
     )
     args = parser.parse_args()
 

@@ -103,6 +103,33 @@ class Settings:
     rerank_model: str = os.getenv("RERANK_MODEL", "qwen3-rerank")
     llm_model: str = os.getenv("LLM_MODEL", "qwen-plus")
     agentscope_max_iters: int = _get_int("AGENTSCOPE_MAX_ITERS", 4)
+    intent_model_backend: str = os.getenv("INTENT_MODEL_BACKEND", "prompt_api")
+    intent_confidence_threshold: float = _get_float(
+        "INTENT_CONFIDENCE_THRESHOLD", 0.65
+    )
+    intent_fallback_to_rules: bool = _get_bool("INTENT_FALLBACK_TO_RULES", True)
+    intent_api_model: str = os.getenv("INTENT_API_MODEL", "qwen-turbo")
+    intent_api_base_url: str = os.getenv(
+        "INTENT_API_BASE_URL",
+        os.getenv(
+            "DASHSCOPE_BASE_URL",
+            "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        ),
+    )
+    intent_api_key: str = os.getenv(
+        "INTENT_API_KEY", os.getenv("DASHSCOPE_API_KEY", "")
+    )
+    intent_local_model: str = os.getenv(
+        "INTENT_LOCAL_MODEL", "Qwen2.5-0.5B-Instruct"
+    )
+    intent_local_base_url: str = os.getenv(
+        "INTENT_LOCAL_BASE_URL", "http://127.0.0.1:8002/v1"
+    )
+    intent_local_api_key: str = os.getenv("INTENT_LOCAL_API_KEY", "local")
+    intent_bert_model_path: str = _resolve_path(
+        os.getenv("INTENT_BERT_MODEL_PATH", "models/intent_bert")
+    )
+    intent_bert_max_length: int = _get_int("INTENT_BERT_MAX_LENGTH", 384)
     max_image_inputs: int = _get_int("MAX_IMAGE_INPUTS", 10)
     ocr_languages: str = os.getenv("OCR_LANGUAGES", "ch_sim,en")
     ocr_model_storage_dir: str = _resolve_path(

@@ -13,6 +13,7 @@ try:
         AgentScopeExecutionContext,
         AgentScopeMultiAgentApplication,
     )
+    from mm_customer_agent_simple.src.intent_model import RuleIntentClassifier
 except ModuleNotFoundError:
     AgentScopeExecutionContext = None
     AgentScopeMultiAgentApplication = None
@@ -51,22 +52,20 @@ class AgentScopeRuntimeTests(unittest.TestCase):
 class AgentScopeApplicationTests(unittest.TestCase):
     def setUp(self):
         self.app = AgentScopeMultiAgentApplication(  # type: ignore[misc]
-            Settings(dashscope_api_key="test-key")
+            Settings(dashscope_api_key="test-key"),
+            intent_classifier=RuleIntentClassifier(),
         )
 
-    def test_main_agent_exposes_only_agent_delegation_tools(self):
-        context = AgentScopeExecutionContext()  # type: ignore[misc]
-        toolkit = self.app._build_main_toolkit(context, [], [])
-        names = {
-            item["function"]["name"] for item in toolkit.get_json_schemas()
-        }
-
-        self.assertEqual(
-            names,
-            {"delegate_customer_service", "delegate_manual_qa"},
+    def test_simple_intent_uses_direct_dag_without_planner_agent(self):
+        prediction = self.app.intent_classifier
+        result = self.app.framework._run_sync(
+            prediction.classify("查询订单 ORD202608230001")
         )
 
-    def test_public_flow_uses_main_and_customer_agentscope_agents(self):
+        self.assertEqual(result.intent.value, "customer_service")
+        self.assertFalse(result.needs_planner)
+
+    def test_public_flow_uses_customer_and_summary_agentscope_agents(self):
         imports = self.app.framework._load_agentscope()
 
         async def invoke(toolkit, name, input_data):
@@ -94,19 +93,14 @@ class AgentScopeApplicationTests(unittest.TestCase):
                 self.toolkit = toolkit
 
             async def __call__(self, _message):
-                if self.name == "main_customer_agent":
-                    await invoke(
-                        self.toolkit,
-                        "delegate_customer_service",
-                        {"query": "查询订单 ORD202608230001 的物流"},
-                    )
-                    return FakeMessage("订单正在运输中。")
                 if self.name == "customer_service_agent":
                     await invoke(
                         self.toolkit,
                         "query_order",
                         {"order_id": "ORD202608230001"},
                     )
+                    return FakeMessage("订单正在运输中。")
+                if self.name == "summary_agent":
                     return FakeMessage("订单正在运输中。")
                 raise AssertionError(self.name)
 
@@ -120,7 +114,7 @@ class AgentScopeApplicationTests(unittest.TestCase):
         self.assertEqual(result["route"], "mock_order_query")
         self.assertTrue(result["order_query"]["found"])
 
-    def test_public_flow_uses_manual_agentscope_agent_and_search_tool(self):
+    def test_public_flow_uses_manual_and_summary_agentscope_agents(self):
         from mm_customer_agent_simple.src.schema import RetrievedChunk
 
         imports = self.app.framework._load_agentscope()
@@ -163,19 +157,14 @@ class AgentScopeApplicationTests(unittest.TestCase):
                 self.toolkit = toolkit
 
             async def __call__(self, _message):
-                if self.name == "main_customer_agent":
-                    await invoke(
-                        self.toolkit,
-                        "delegate_manual_qa",
-                        {"query": "空气净化器滤网怎么更换？"},
-                    )
-                    return FakeMessage("关闭电源后打开后盖并更换滤网。")
                 if self.name == "manual_qa_agent":
                     await invoke(
                         self.toolkit,
                         "search_manual",
                         {"search_query": "空气净化器 更换滤网", "top_k": 4},
                     )
+                    return FakeMessage("关闭电源后打开后盖并更换滤网。")
+                if self.name == "summary_agent":
                     return FakeMessage("关闭电源后打开后盖并更换滤网。")
                 raise AssertionError(self.name)
 

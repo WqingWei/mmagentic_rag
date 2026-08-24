@@ -157,6 +157,8 @@ def _build_trace_record(row: dict, result: dict) -> dict:
     return {
         "id": row.get("id", ""),
         "question": row.get("question", ""),
+        "intent_prediction": result.get("intent_prediction") or {},
+        "execution_plan": result.get("execution_plan") or {},
         "route": result.get("route", result.get("question_type", "")),
         "question_type": result.get("question_type", ""),
         "route_plan": result.get("route_plan") or {},
@@ -354,7 +356,7 @@ def main():
     parser.add_argument(
         "--no-agent-flow-log",
         action="store_true",
-        help="不在终端打印 [主agent]/[子agent] 流程",
+        help="不在终端打印 AgentScope 意图/规划/DAG/Agent 流程",
     )
     args = parser.parse_args()
 
